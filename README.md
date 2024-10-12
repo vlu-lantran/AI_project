@@ -10,7 +10,11 @@ This branch is for an A.I. project focused on anomaly detection using the curren
 parser.add_argument('--weights', type=str, default='yolov8s-oiv7.pt', help='model.pt path(s)')
 #Example: default='yolo11n.pt'    
 ```
-Run the source code and customize the parameters if needed.
+Run the source code:
+```python
+#Example
+python anomaly_detect_v1.2_group1.py --source sample/sample.mp4
+```
 
 ## Features
 - Analyze anomalies in the video of object 1 and detect the disappearance of object 1.
