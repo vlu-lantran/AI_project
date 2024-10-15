@@ -1,3 +1,3 @@
-from .predict_det import TextDetector
+from .pipeline import DetAndRecONNXPipeline, TextRecognizer, TextDetector
 
-__all__ = ["TextDetector"]
+__all__ = ["DetAndRecONNXPipeline", "TextRecognizer", "TextDetector"]
