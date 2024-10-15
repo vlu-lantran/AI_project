@@ -1,49 +1,47 @@
-# Vietnamese License Plate Recognition
+# Vietnamese license plate recognition
 
-This repository provides you with a detailed guide on how to training and build a Vietnamese License Plate detection and recognition system. This system can work on 2 types of license plate in Vietnam, 1 line plates and 2 lines plates.
+## Prerequisite
+- 3.7 <= Python version <= 3.10
 
-## Installation
+## Overview
+![Screenshot 1](./images/archi.png)
 
+Both vehicle detection and plate detection based on the YOLOv8 model (checkout the official repository at [Ultralytics](https://github.com/ultralytics/ultralytics)).
+
+For tracking task, two tracking algorithms were adopt which were SORT and DeepSORT. The DeepSORT weight was taken from [John1liu](https://github.com/John1liu/YOLOV5-DeepSORT-Vehicle-Tracking-Master).
+
+In terms of Plate Recognition, [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) was used to recognize plate information.
+
+## Usage
+Install required libraries
 ```bash
-  # install dependencies using pip 
-  pip install -r ./requirement.txt
+pip install -r requirements.txt
+```
+To Inference, run this script:
+```bash
+python main.py --stream --read_plate --video [path_to_your_video] [optional arguments]
+
+#example: python main.py --stream --read_plate --video "C:\\Users\\GIGABYTE\\Downloads\\vid_3.mp4"
 ```
 
-- **Pretrained model** provided in ./model folder in this repo 
 
-- **Download yolov5 (old version) from this link:** [yolov5 - google drive](https://drive.google.com/file/d/1g1u7M4NmWDsMGOppHocgBKjbwtDA-uIu/view?usp=sharing)
 
-- Copy yolov5 folder to project folder
+**Arguments**
+- ```--video```: (str) path to video
+- ```--save```: (bool) save output video (the result would be saved in `data/log`, you can change save path by specify `--save_dir` augment)
+- ```--save_dir```: (str) saved path
+- ```--vehicle_weight```: (str) path to the yolov8 weight of vehicle detector
+- ```--plate_weight```: (str) path to the yolov8 weight of plate detector
+- ```--vconf```: (float) confidence for vehicle detection
+- ```--pconf```: (float) confidence for plate detection
+- ```--ocrconf_thres```: (float) threshold for ocr model
+- ```--stream```: (bool): real-time monitoring
+- ```--read_plate```: (bool): Use for plate recognition, disable it if you want to count vehicles only.
 
-## Run License Plate Recognition
+As regards streaming control, from keyboard, 
+- ```Q```: exit the running window
+- ```R```: to reset object tracker (equivalent to re-count number of entire vehicles from that time)
+- ```P```: pause video
 
-```bash
-  # run main.py file to choose a image or video you want to License Plate Recognition
-  python main.py
-
-  # run LP_recognition.ipynb if you want to know how model work in each step
-```
-
-## Result
-![Demo 1](result/image.jpg)
-
-![Vid](result/video_1.gif)
-
-## Vietnamese Plate Dataset
-
-This repo uses 2 sets of data for 2 stage of license plate recognition problem:
-
-- [License Plate Detection Dataset](https://drive.google.com/file/d/1xchPXf7a1r466ngow_W_9bittRqQEf_T/view?usp=sharing)
-- [Character Detection Dataset](https://drive.google.com/file/d/1bPux9J0e1mz-_Jssx4XX1-wPGamaS8mI/view?usp=sharing)
-
-Thanks [Mì Ai](https://www.miai.vn/thu-vien-mi-ai/) and [winter2897](https://github.com/winter2897/Real-time-Auto-License-Plate-Recognition-with-Jetson-Nano/blob/main/doc/dataset.md) for sharing a part in this dataset.
-
-## Training
-
-**Training code for Yolov5:**
-
-Use code in ./training folder
-```bash
-  training/Plate_detection.ipynb     #for LP_Detection
-  training/Letter_detection.ipynb    #for Letter_detection
-```
+**Result**
+![Demo 1](result/image.png)
