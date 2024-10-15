@@ -42,21 +42,8 @@ video_path = 'YOUR_INPUT_VIDEO.mp4'
 5. **collections.defaultdict**: Class to create default dictionaries where a default value is provided if the key does not exist.
 
 ## Warning
-1. The output of this code marks the objects that appear in English (Car 1, Person 1) and outputs the result in a Json file in Vietnamese at line
 
-```python
-ten_lop = {
-            'person': 'Người',
-            'car': 'Ô tô',
-            'truck': 'Xe tải',
-            'bus': 'Xe buýt',
-            'motorcycle': 'Xe máy'
-            }.get(info['Tên lớp'], info['Tên lớp']) 
-```
-
-You can keep it as is or change it as needed.
-
-2. This code uses CPU, if your hardware is not guaranteed, please consider before using this code.
+1. This code uses CPU, if your hardware is not guaranteed, please consider before using this code.
 
 ## Authors
 - **Nguyen Phuoc Dai**
