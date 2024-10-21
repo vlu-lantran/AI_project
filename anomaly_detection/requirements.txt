@@ -1,0 +1,10 @@
+argparse
+torch==2.4.1
+torchvision==0.19.1
+ultralytics==8.3.9
+opencv-python==4.10.0.84
+# collections
+pathlib
+# json
+numpy==1.26.4
+tqdm==4.66.5
