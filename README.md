@@ -29,6 +29,11 @@ python main.py --stream --read_plate --video [path_to_your_video] [optional argu
 
 #Example: python main.py --stream --read_plate --video "C:\\Users\\GIGABYTE\\Downloads\\vid_3.mp4"
 ```
+**Note**
+Because the file size of the file is larger than the size allowed by github, you need to download the file from gg Drive and paste it into the correct path below
+"C:\your folder\vietnamese-license-plate-recognition\weights"
+"C:\your folder\vietnamese-license-plate-recognition\tracking\deep_sort\deep\checkpoint"
+There are 2 files in total that need to be executed
 
 
 
