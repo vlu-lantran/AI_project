@@ -1,7 +1,7 @@
 # Vietnamese license plate recognition
 
 ## Prerequisite
-- 3.7 <= Python version <= 3.10
+- 3.7 <= Python version <= 3.11
 
 ## Overview
 ![Screenshot 1](./images/archi.png)
@@ -15,13 +15,19 @@ In terms of Plate Recognition, [PaddleOCR](https://github.com/PaddlePaddle/Paddl
 ## Usage
 Install required libraries
 ```bash
+#I'm currently in used pip 23.1.2 (Python 3.11) to install these libraries
+
+#Install this first
+pip install torch==2.4.1+cu118 torchaudio==2.4.1+cu118 torchvision==0.19.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+
+#After that download this
 pip install -r requirements.txt
 ```
 To Inference, run this script:
 ```bash
 python main.py --stream --read_plate --video [path_to_your_video] [optional arguments]
 
-#example: python main.py --stream --read_plate --video "C:\\Users\\GIGABYTE\\Downloads\\vid_3.mp4"
+#Example: python main.py --stream --read_plate --video "C:\\Users\\GIGABYTE\\Downloads\\vid_3.mp4"
 ```
 
 
@@ -43,5 +49,7 @@ As regards streaming control, from keyboard,
 - ```R```: to reset object tracker (equivalent to re-count number of entire vehicles from that time)
 - ```P```: pause video
 
-**Result**
+
+## Result
+
 ![Demo 1](result/image.png)
