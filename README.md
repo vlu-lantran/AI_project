@@ -19,7 +19,12 @@ To run the anomaly detection script, use the following command:
 python anomaly_detect_v1.2_group1.py --source sample/sample.mp4
 ```
 Parameters: --source: Path to the video file or webcam stream (e.g., input/video.mp4).
-
+To run the anomaly detection script with real-time detection using camera, use the following command:
+```python
+#Example
+python anomaly_detect_v1.2_group1.py --source 0
+```
+Parameters: --source: Path to the video file or webcam stream (e.g., input/video.mp4, input/0 to open the camera).
 ## Features
 
 - **Anomaly Detection**: Analyze videos for anomalies, specifically focusing on detecting fluctuations in the environment such as explosions, fires, smoke, and other unusual events.
@@ -28,10 +33,10 @@ Parameters: --source: Path to the video file or webcam stream (e.g., input/video
 
 - **Bounding Boxes**:
   1. **Fluctuation Detection**: Draw bounding boxes around environmental fluctuations (e.g., explosion, fire, smoke). These boxes are indicated in **red** and labeled as "Fluctuation" to distinguish them from tracked objects.
-  2. **Object Detection**: Draw bounding boxes around detected objects, specifically focusing on Object 1. These boxes are color-coded based on the status of the object: **green** for "Normal" and **red** for any anomalies detected.
+  2. **Object Detection**: Draw bounding boxes around detected objects, specifically focusing on Object 1. These boxes are color-coded based on the status of the object: **green** for "Objects" and **blue** for any anomalies detected.
 
 - **Time Logging**: Log the appearance and disappearance times of similar objects for a comprehensive understanding of their activity in the scene.
-
+- **Real-time Detection**: Log the appearance and disappearance times by using camera with 24 frame per secs.
 - **Output**: Generate a video output that visualizes detected anomalies and objects, along with a JSON file summarizing the detection results, including anomaly occurrences and times.
 
 ## Libraries Used
