@@ -18,7 +18,6 @@ To run the anomaly detection script, use the following command:
 #Example
 python anomaly_detect_v1.2_group1.py --source sample/sample.mp4
 ```
-Parameters: --source: Path to the video file or webcam stream (e.g., input/video.mp4).
 To run the anomaly detection script with real-time detection using camera, use the following command:
 ```python
 #Example
