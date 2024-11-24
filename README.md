@@ -1,70 +1,56 @@
-# Getting Started with Create React App
+# Introduction
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This branch is developed for an AI project Object detection group2 before, with tasks such as optimizing performance, cleaning up code and unifying input.
 
-## Available Scripts
+## Example.
 
-In the project directory, you can run:
+### Before
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+https://github.com/user-attachments/assets/d41565b7-a3da-4577-9c38-7418e3ae6d36
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+https://drive.google.com/file/d/1dnpuvEZVmkR_uQQHQv1FotCn9l0yYcBl/view?usp=drive_link
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+### After
+https://drive.google.com/file/d/1W8BBMymxvh9PwrD6C0T94sCIweZcVUoA/view?usp=drive_link
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+https://drive.google.com/file/d/1rcKScVfRy7waydlpDyhxIo5ntwQJbYpA/view?usp=drive_link
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Installation
 
-### `npm run eject`
+ 1.Download the source code from this branch in the repository.
+ 
+ 2.If you want to change the Yolov8m model to another model, change at the line:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+model_path = 'YOUR MODEL'
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+#Example: model_path = 'yolov8m.pt'    
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+ 3. If you want to run the code with your input, change at line:
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+video_path = 'YOUR_INPUT_VIDEO.mp4'
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+#video_path = 'video_test.mp4'   
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+# Libraries Used
+1. os: Prevents potential errors related to loading libraries on some systems.
+2. cv2: For image processing and computer vision.
+3. json: For encoding and decoding JSON data.
+4. ultralytics.YOLO: Used to deploy the YOLO object detection model.
+5. collections.defaultdict: Class to create default dictionaries where a default value is provided if the key does not exist.
+6. Torch GPU Support: The library supports parallel computation on GPUs, speeding up the training and inference of models.
 
-### Analyzing the Bundle Size
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+# Notes
+Ensuring compatibility between your CUDA Toolkit version and NVIDIA driver version is crucial for optimal performance and stability
+My      Driver Version: 566.14,  CUDA Version: 12.7
 
-### Making a Progressive Web App
+This code uses the GPU; if you don't have a GPU, you can use the CPU instead.If your hardware is not guaranteed, please consider before using this code.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
