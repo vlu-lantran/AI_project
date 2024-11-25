@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.I Video Detection</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Real-time Video Anomaly Detector</h1>
+        
+        <!-- Upload Section -->
+        <fieldset class="upload-section">
+            <legend>Upload Video</legend>
+            <form id="uploadForm">
+                <label for="videoUpload">Choose a video file:</label>
+                <input id="videoUpload" type="file" name="video" accept=".mp4,.avi,.mov" onchange="previewVideo(event)">
+                <div class="preview-container" id="previewContainer">
+                    <h3>Preview</h3>
+                    <video id="videoPreview" controls>
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+        </fieldset>
+
+        <!-- Control Panel -->
+        <fieldset class="control-panel">
+            <legend>Controls</legend>
+            <button id="startProcessing" class="btn btn-primary" disabled>Start Detection</button>
+            <button id="stopProcessing" class="btn btn-danger" disabled>Stop</button>
+            <button id="deleteVideo" class="btn btn-warning" disabled>Delete Video</button>
+            <div id="processingStatus" class="status idle">
+                <strong>Status:</strong> Waiting for video
+            </div>
+        </fieldset>
+
+        <!-- Video Stream -->
+        <div class="video-container">
+            <div class="video-box">
+                <h3>Video Stream</h3>
+                <img id="videoStream" src="" alt="Video stream">
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-container" style="display: none;">
+            <h3>Detection Results</h3>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Object</th>
+                        <th>Appear Time</th>
+                        <th>Disappear Time</th>
+                        <th>Status</th>
+                        <th>Appearance</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Download Section -->
+        <fieldset class="download-section">
+            <legend>Download</legend>
+            <button id="downloadVideo" class="btn btn-success" disabled>
+                Download Processed Video
+            </button>
+        </fieldset>
+    </div>
+
+    <script>
+        function previewVideo(event) {
+            const file = event.target.files[0];
+            const previewContainer = document.getElementById('previewContainer');
+            const videoPreview = document.getElementById('videoPreview');
+
+            if (file) {
+                const videoUrl = URL.createObjectURL(file);
+                videoPreview.src = videoUrl;
+                previewContainer.style.display = 'block';
+            } else {
+                previewContainer.style.display = 'none';
+                videoPreview.src = '';
+            }
+        }
+    </script>
+    <script src="static/js/script.js"></script>
+</body>
+</html>
