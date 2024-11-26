@@ -1,0 +1,4 @@
+pip install opencv-python
+pip install paddlepaddle   # Hoặc paddlepaddle-gpu nếu bạn sử dụng GPU
+pip install paddleocr
+pip install ultralytics
