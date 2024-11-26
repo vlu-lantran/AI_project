@@ -1,5 +1,5 @@
 ## Introduction
-This branch developed for the A.I project focused on anomaly detection using the current model Yolov8-Open-ImageV7. The script is designed to detect anomalies in video data, recording the appearance and disappearance times of objects, as well as when an object reappears or disappears again.
+This branch developed for the phase two of A.I project focused on anomaly detection using the current model Yolov8-Open-ImageV7. The script now integrated with simple web detector to detect anomalies in video data, recording the appearance and disappearance times of objects, as well as when an object reappears or disappears again.
 
 ## Implemetation:
 1. Download the source code from this branch in the repository.
@@ -32,16 +32,12 @@ Upload your video and start the processing.
 - **Real-time Detection**: Log the appearance and disappearance times by using camera with 24 frame per secs.
 - **Output**: Generate a video output for camera format .avi extensions. Visualizes detected anomalies of objects, along with a JSON file summarizing the detection results, including anomaly occurrences and times.
 
-## Libraries Used
-1. **argparse**: Parsing command-line arguments.
-2. **time**: Time measurement.
-3. **json**: Encoding and decoding JSON data.
-4. **pathlib**: Provides easy and portable manipulation of file paths across platforms.
-5. **cv2**: Image processing and computer vision.
-6. **torch**: Neural network processing.
-7. **collections.defaultdict**: Class to create default dictionaries where a default value is provided if the key does not exist.
-8. **ultralytics.YOLO**: Used to deploy the YOLO object detection model.
-9. **Background Substraction**: Use for analyzing anomaly in the environmental fluctuations in the script.
+## Main Libraries Used
+1. **json**: Encoding and decoding JSON data.
+2. **cv2**: Image processing and computer vision.
+3. **torch**: Neural network processing.
+4. **ultralytics.YOLO**: Used to deploy the YOLO object detection model.
+5. **Background Substraction**: Use for analyzing anomaly in the environmental fluctuations in the script.
 
 ## Contribution
 If you would like to contribute to the project, please create a pull request and clearly describe the changes you want to make.
