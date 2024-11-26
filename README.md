@@ -1,70 +1,120 @@
-# Getting Started with Create React App
+# License Plate Detection using YOLOv8 and OCR  
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project leverages **YOLOv8** for license plate detection and **PaddleOCR** for optical character recognition (OCR). The system processes input videos, detects license plates, extracts plate numbers with OCR, and saves valid results in a structured JSONL format.  
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Features  
 
-### `npm start`
+- **License Plate Detection**: Utilizes YOLOv8 with a pre-trained and fine-tuned model for robust plate detection.  
+- **OCR Integration**: Implements PaddleOCR to extract text from detected license plates.  
+- **Validation**: Filters results using regex validation for Vietnamese license plate formats.  
+- **Output**: Saves detected plates with timestamp and confidence scores in a JSONL file and overlays results on an output video.  
+- **Performance Tracking**: Displays frames-per-second (FPS) on processed video frames.  
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Prerequisites  
 
-### `npm test`
+1. **Python Libraries**:
+   - OpenCV: `pip install opencv-python`
+   - PaddleOCR: `pip install paddleocr`
+   - ultralytics (YOLOv8): `pip install ultralytics`
+   - Other: `argparse`, `os`, `logging`, `json`, `datetime`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. **Models**:
+   - YOLOv8 model file (`license_plate_detector.pt`) for license plate detection. Ensure this is present in the `models/` directory.
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Usage 
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 1. **Command Line Arguments**  
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+| Argument              | Description                                   | Default           |
+|-----------------------|-----------------------------------------------|-------------------|
+| `--source`            | Path to the input video (required).           | N/A               |
+| `--output_dir`        | Directory for output files.                   | `output/`         |
+| `--confidence_threshold` | Minimum OCR confidence for plate validation. | `0.5`             |
 
-### `npm run eject`
+### 2. **Execution**  
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Run the script with the following command:  
+```python
+python main.py --source path/to/video.mp4
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Output  
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. **Detected Video**:  
+   - File saved as `detected_video.mp4` in the output directory.  
+   - Shows bounding boxes around detected plates, plate numbers, and FPS.  
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. **JSONL File**:  
+   - Detected license plates saved in `detected_plates.jsonl`.  
+   - Each entry includes:  
+     ```json
+     {
+       "timestamp": "2024-11-27 15:30:45",
+       "plate_number": "51H-12345",
+       "confidence": 0.92
+     }
+     ```
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## System Workflow  
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. **Preprocessing**:
+   - Video input is resized to 420p for faster processing while preserving aspect ratio.  
+   
+2. **Detection**:
+   - YOLOv8 detects license plates in video frames.  
 
-### Code Splitting
+3. **OCR**:
+   - PaddleOCR extracts text from detected plates.  
+   - Confidence scores are averaged if multiple lines of text are detected.  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+4. **Validation**:
+   - Results are validated against a regex pattern for Vietnamese license plates.  
+   - Plates with confidence above the specified threshold are saved.  
 
-### Analyzing the Bundle Size
+5. **Output**:
+   - Valid detections are overlayed on video frames.  
+   - Results are saved in a JSONL file for further analysis.  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## Code Highlights  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- **Validation of Plates**:  
+   ```python
+   VALID_PLATE_PATTERN = re.compile(r'^(\d{2}[-][A-Z0-9]{4,6})$')
+   def is_valid_vietnamese_plate(plate_text):
+       return VALID_PLATE_PATTERN.match(plate_text)
+   ```
 
-### Advanced Configuration
+- **Saving Results**:  
+   ```python
+   def save_to_jsonl(plate_data):
+       with open(output_jsonl_path, 'a') as f:
+           json.dump(data, f)
+           f.write('\n')
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- **OCR and Detection**:  
+   ```python
+   ocr_result = ocr.ocr(plate_img, cls=False)
+   if ocr_result:
+       for line in ocr_result[0]:
+           text, confidence = line[1]
+   ```
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Improvements  
 
-### `npm run build` fails to minify
+- **Real-Time Processing**: Optimize for live camera feeds.  
+- **Multi-language OCR**: Extend support for different languages.  
+- **Performance Metrics**: Track inference time and processing speed per frame.  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
