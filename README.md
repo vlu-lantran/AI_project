@@ -12,17 +12,11 @@ weights = 'yolov8s-oiv7.pt'
 Weights: Path to the YOLO model weights file (e.g., yolov8s-oiv7.pt).
 
 ## Usage
-To run the anomaly detection script with normal video input or upload, use the following command:
+To run the anomaly detection script with websites detect
 ```python
-#Example
-python anomaly_detection.py --source sample/sample.mp4
+python app.py 
 ```
-To run the anomaly detection script with real-time detection using camera, use the following command:
-```python
-#Example
-python anomaly_detection.py --source 0
-```
-Parameters: --source: Path to the video file or webcam stream (e.g., input/video.mp4, input/0 to open the camera).
+Upload your video and start the processing.
 
 ## Features
 
@@ -55,7 +49,7 @@ If you would like to contribute to the project, please create a pull request and
 ## Authors
 - **Lăng Nhật Tân**
 - **Đỗ Lý Anh Kiệt**
-- **Lê Phan Minh Hải**
+- **Quang Mỹ Tâm**
 
 ## License
 Thank you for your interest and use of our project! 🔥 🔥 🔥 
