@@ -6,6 +6,9 @@ from ultralytics import YOLO
 import os
 from typing import Dict, List, Optional, Tuple
 
+# Initialize list to save the time appear abnormal
+list_time_appear = []
+total_seconds_vid = 0
 class AnomalyDetector:
     def __init__(self):
         # YOLO model path
@@ -14,7 +17,7 @@ class AnomalyDetector:
         # To track object appearances
         self.object_appearances = defaultdict(list)  
         # Background objects detected in the first frame
-        self.background_objects = {}
+        self.background_objects = set()
         # Background subtractor
         self.fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False, varThreshold=50)  
         # List to store anomaly detection results
@@ -22,32 +25,78 @@ class AnomalyDetector:
     
     def initialize_video(self, video_path: str) -> Tuple[cv2.VideoCapture, Dict]:
         """Initialize video capture and get video properties"""
+        global total_seconds_vid
         video = cv2.VideoCapture(video_path)
+        video1 = cv2.VideoCapture(video_path)
         video_info = {
             'fps': video.get(cv2.CAP_PROP_FPS),
             'width': int(video.get(cv2.CAP_PROP_FRAME_WIDTH)),
             'height': int(video.get(cv2.CAP_PROP_FRAME_HEIGHT)),
             'frame_count': int(video.get(cv2.CAP_PROP_FRAME_COUNT))
         }
-
-        # Initialize background objects from the first frame
-        ret, first_frame = video.read()
+        # Total frame of video
+        total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+        # FPS of video
+        fps = video.get(cv2.CAP_PROP_FPS)
+        
+        total_seconds = int(total_frames / fps)
+        total_seconds_vid = total_seconds
+        one_second = int(total_frames / total_seconds)
+        frame_count = 0
+        ret, first_frame = video1.read()
         if ret:
-            background_results = self.model(first_frame, imgsz=640)
+            background_results = self.model(first_frame)
             for result in background_results:
                 boxes = result.boxes
                 for box in boxes:
                     obj_id = int(box.cls[0])
                     obj_name = self.names[obj_id]
-                    self.background_objects[obj_name] = True
-        
+                    # if obj_name in ["Tree", "Building"]: self.background_objects.add(obj_name)
+                    self.background_objects.add(obj_name)
+        while True:
+            ret, frame = video1.read()
+            if not ret: break
+            frame_count += 1
+            current_time = int(frame_count / fps)
+            if frame_count % one_second != 0: continue
+            '''We only need to process follow second instead of processing frame by frame'''
+            results = self.model(frame)
+            is_detect = False
+            for result in results:
+                boxes = result.boxes
+                for box in boxes:
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                    w = x2 - x1
+                    h = y2 - y1
+                    if w * h > 1000:
+                        obj_id = int(box.cls[0])
+                        obj_name = self.names[obj_id]
+                        if obj_name in self.background_objects:
+                            continue  # Skip objects identified as background
+                        # Check if YOLO can detect object that is in this time have abnormal object
+                        if (len(list_time_appear) == 0) or (len(list_time_appear) > 0 and list_time_appear[-1]["Disappear"] != 0):
+                            list_time_appear.append({
+                                "Appear": current_time,
+                                "Disappear": 0
+                            })
+                        is_detect = True
+                    # This time don't have any abnormal object
+                    if not is_detect:
+                        if len(list_time_appear) > 0 and list_time_appear[-1]["Disappear"] == 0 and current_time - list_time_appear[-1]["Appear"] >= 1:
+                            list_time_appear[-1]["Disappear"] = current_time
         # Reset video to the beginning
-        video.set(cv2.CAP_PROP_POS_FRAMES, 0)  
+        video.set(cv2.CAP_PROP_POS_FRAMES, 0)
         return video, video_info
     
     def process_frame(self, frame: np.ndarray, current_time: float) -> Tuple[np.ndarray, List[dict]]:
         """Process a single frame for anomaly detection"""
         processed_frame = frame.copy()
+        # global list_time_appear, total_seconds_vid
+        if len(list_time_appear) > 0 and list_time_appear[-1]["Disappear"] == 0 and total_seconds_vid != 0: 
+            list_time_appear[-1]["Disappear"] = total_seconds_vid 
+        self.anomaly_results = list_time_appear.copy()
+        # print(f"List time appear abnormal: {list_time_appear}")
+        current_time = int(current_time)
 
         # Background subtraction
         fgmask = self.fgbg.apply(frame)
@@ -56,69 +105,35 @@ class AnomalyDetector:
         
         for contour in contours:
             # Only process large contours
-            if cv2.contourArea(contour) > 17000:  
+            conf_score = 0
+            area = cv2.contourArea(contour) 
+            area_confidence = min(area / 50000, 1.0)
+            x, y, w, h = cv2.boundingRect(contour)
+            rect_area = w * h
+            if area > 17000:
+                is_detect = False
+                for obj in list_time_appear:
+                    if obj["Appear"] == current_time:
+                        is_detect = True
+                        break
+                if not is_detect:
+                    list_time_appear.append({
+                        "Appear": current_time,
+                        "Disappear": current_time
+                    })
+                compactness = area / rect_area
+                
+                # Motion direction penalty
+                # Additional logic can be added here to penalize unusual motion directions
+                # Combine factors (you can adjust weights)
+                confidence = (0.6 * area_confidence) + (0.4 * compactness)
+                conf_score = round(min(max(confidence, 0), 1), 2)  # Ensure between 0 and 1
                 x, y, w, h = cv2.boundingRect(contour)
                 cv2.rectangle(processed_frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-                cv2.putText(processed_frame, "Anomaly Detected",
+                cv2.putText(processed_frame, f"Anomaly Detected: {conf_score}",
                             (x, y - 10 if y > 20 else y + 20),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-        
-        # YOLO detection
-        results = self.model(frame, imgsz=640)
-        for result in results:
-            boxes = result.boxes
-            for box in boxes:
-                obj_id = int(box.cls[0])
-                obj_name = self.names[obj_id]
-
-                # Skip if object is part of the background
-                if obj_name in self.background_objects:
-                    continue
-
-                # Update appearance/disappearance times
-                if (not self.object_appearances[obj_id] or 
-                    current_time - self.object_appearances[obj_id][-1]['Disappear'] > 1):
-                    self.object_appearances[obj_id].append({
-                        'Appear': current_time,
-                        'Disappear': None
-                    })
-
-                self.object_appearances[obj_id][-1]['Disappear'] = current_time
-        
-        # Update anomaly results
-        self.anomaly_results.clear()
-        for obj_id, appearances in self.object_appearances.items():
-            obj_name = self.names[obj_id]
-            for idx, times in enumerate(appearances):
-                self.anomaly_results.append({
-                    'Object': obj_name,
-                    'Appear': f"{times['Appear']:.2f}s" if times['Appear'] is not None else "Not detected",
-                    'Disappear': f"{times['Disappear']:.2f}s" if times['Disappear'] is not None else "Not detected",
-                    'Status': 'Abnormal',
-                    'Appearance': f'Appearance {idx + 1}'
-                })
-        
-        # Draw bounding boxes for detections
-        for result in results:
-            boxes = result.boxes
-            for box in boxes:
-                x1, y1, x2, y2 = map(int, box.xyxy[0])
-                obj_id = int(box.cls[0])
-                obj_name = self.names[obj_id]
-                confidence = box.conf[0]
-
-                # Skip background objects or low-confidence detections
-                if obj_name in self.background_objects or confidence < 0.5:
-                    continue
-
-                color = (0, 255, 0) if obj_name not in self.background_objects else (0, 0, 255)
-                cv2.rectangle(processed_frame, (x1, y1), (x2, y2), color, 2)
-                label = f"{obj_name} {confidence:.2f}"
-                cv2.putText(
-                    processed_frame, label,
-                    (x1, y1 - 10 if y1 > 20 else y1 + 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-        
+        self.anomaly_results = list_time_appear.copy()
         return processed_frame, self.anomaly_results
     
     def reset(self):
