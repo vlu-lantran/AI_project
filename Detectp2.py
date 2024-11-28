@@ -8,11 +8,13 @@ from collections import defaultdict
 
 # Check if GPU or CPU is being used
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'true'
-device = "GPU: " + torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using {device}")
 
 def process_video(video_path, model_path, output_video_path, output_json_path):
-    model = YOLO(model_path)
+    model = YOLO(model_path).to(device)
+
+    # Open the video and extract properties
     cap = cv2.VideoCapture(video_path, cv2.CAP_FFMPEG)
     
     # Extract input video properties like width, height, FPS, and total frame count
