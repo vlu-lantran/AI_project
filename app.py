@@ -179,14 +179,14 @@ def process_video_loop():
                     write_to_buffer(jpeg.tobytes())
                 
                 # Thêm delay để giảm tải CPU và ngăn video chạy liên tục
-                time.sleep(0.5)  # Điều chỉnh thời gian delay phù hợp
+                time.sleep(0.1)  # Điều chỉnh thời gian delay phù hợp
                 continue
             
             # Phần code xử lý frame khi processing được giữ nguyên
             success, frame = processing_state['video'].read()
             if not success:
                 processing_state['video'].set(cv2.CAP_PROP_POS_FRAMES, 0)
-                time.sleep(0.9)  # Prevent tight loop
+                time.sleep(0.1)  # Prevent tight loop
                 continue
             
             processing_state['frame_count'] += 1
