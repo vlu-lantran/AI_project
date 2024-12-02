@@ -55,9 +55,14 @@ This code uses the GPU; if you don't have a GPU, you can use the CPU instead.If 
 
 + In phase1.py, we have integrated automatic detection of videos in a folder and automatic export of detected videos and Json files to another file.
 + output_folder="DoneDetect"
++ output_json=" name_resultsdetect.json"
+  ex: 19_resultsdetect.json
++ output_video= "name_outputdetect.avi"
+  ex: 19_outputdetect.avi
 
 run code:
   python3 name file.py --source_folder name folder (have videos)
+  ex: ython3 phase1.py --source khovideo/19.mp4 
   
 
 
