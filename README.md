@@ -45,7 +45,6 @@ If you would like to contribute to the project, please create a pull request and
 ## Authors
 - **Lăng Nhật Tân**
 - **Đỗ Lý Anh Kiệt**
-- **Quang Mỹ Tâm**
 
 ## License
 Thank you for your interest and use of our project! 🔥 🔥 🔥 
