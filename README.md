@@ -64,6 +64,7 @@ run code:
   python3 name file.py --source_folder name folder (have videos)
   
   ex: python3 phase1.py --source khovideo/19.mp4 
+  
       python3 phase1.py --source_folder khovideo
   
 
