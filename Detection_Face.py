@@ -170,7 +170,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Xử lý video với face và vehicle detection")
     parser.add_argument('--input', type=str, required=True, help="Đường dẫn đến file video input")
     parser.add_argument('--output_dir', type=str, default='./output', help="Thư mục lưu kết quả")
-    parser.add_argument('--face_model', type=str, default='yolov8n-face.pt', help="Đường dẫn đến model face detection")
+    parser.add_argument('--face_model', type=str, default='/models/yolov8n-face.pt', help="Đường dẫn đến model face detection")
     parser.add_argument('--vehicle_model', type=str, default='yolov8m.pt', help="Đường dẫn đến model vehicle detection")
     
     args = parser.parse_args()
