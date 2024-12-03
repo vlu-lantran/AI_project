@@ -177,8 +177,8 @@ if __name__ == "__main__":
 
     # Tạo tên file output dựa trên tên file input
     base_name = os.path.splitext(os.path.basename(args.input))[0]
-    output_video = os.path.join(args.output_dir, f"{base_name}_output.mp4")
-    output_json = os.path.join(args.output_dir, f"{base_name}_results.json")
+    output_video = os.path.join(args.output_dir, f"{base_name}_Out_Object.mp4")
+    output_json = os.path.join(args.output_dir, f"{base_name}_Out_Object.json")
 
     # Xử lý video
     process_video(
