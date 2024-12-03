@@ -9,11 +9,46 @@ import torch
 from ultralytics import YOLO
 
 
-def anomaly_detect(source=0, save_dir='output/', weights='yolov8s-oiv7.pt', imgsz=640):
+def anomaly_detect(source_dir, output_dir='output/'):
+    """
+    Process all videos in a source directory and generate anomaly detection results
+    
+    Args:
+        source_dir (str): Directory containing input videos
+        output_dir (str): Directory to save output videos and results
+    """
     start_time = time.time()
 
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Get list of video files in the source directory
+    video_files = [
+        f for f in os.listdir(source_dir) 
+        if f.lower().endswith(('.mp4', '.avi', '.mov', '.mkv'))
+    ]
+
+    # Process each video sequentially
+    for video_filename in video_files:
+        video_path = os.path.join(source_dir, video_filename)
+        print(f"\nProcessing video: {video_filename}")
+
+        # Prepare output paths
+        video_output_dir = os.path.join(output_dir, os.path.splitext(video_filename)[0])
+        os.makedirs(video_output_dir, exist_ok=True)
+
+        # Call internal processing function
+        _process_single_video(
+            source=video_path, 
+            save_dir=video_output_dir
+        )
+
+    end_time = time.time()
+    print(f"\nTotal processing time for all videos: {end_time - start_time:.2f} seconds")
+
+
+def _process_single_video(source=0, save_dir='output/', weights='yolov8s-oiv7.pt', imgsz=640):
+    start_time = time.time()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = YOLO(weights)
@@ -36,17 +71,16 @@ def anomaly_detect(source=0, save_dir='output/', weights='yolov8s-oiv7.pt', imgs
 
     total_frames = int(dataset.get(cv2.CAP_PROP_FRAME_COUNT)) if source != 0 else float('inf')
     fps = dataset.get(cv2.CAP_PROP_FPS) if source != 0 else 24
-    frame_skip_ratio = max(1, int(fps / 24))
+    #frame_skip_ratio = max(1, int(fps / 24))
+    frame_skip_ratio = 1  # Process all frames
 
     # Get frame dimensions
     width = int(dataset.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(dataset.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    new_height = 420
-    new_width = int((new_height / height) * width)
 
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    output_video_path = os.path.join(save_dir, 'output.avi')
-    video_writer = cv2.VideoWriter(output_video_path, fourcc, fps, (new_width, new_height))
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    output_video_path = os.path.join(save_dir, 'output.mp4')
+    video_writer = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
 
     # Detect background objects in the first frame
     ret, first_frame = dataset.read()
@@ -60,6 +94,7 @@ def anomaly_detect(source=0, save_dir='output/', weights='yolov8s-oiv7.pt', imgs
                 background_objects[obj_name] = True
 
     frame_count = 0
+    anomaly_results = []
     while True:
         ret, img = dataset.read()
         if not ret:
@@ -81,6 +116,7 @@ def anomaly_detect(source=0, save_dir='output/', weights='yolov8s-oiv7.pt', imgs
         bin_img = cv2.threshold(fgmask, 200, 255, cv2.THRESH_BINARY)[1]
         contour_list, _ = cv2.findContours(bin_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+        anomalies_in_frame = []
         for contour in contour_list:
             if cv2.contourArea(contour) > 17000:
                 x, y, w, h = cv2.boundingRect(contour)
@@ -100,6 +136,11 @@ def anomaly_detect(source=0, save_dir='output/', weights='yolov8s-oiv7.pt', imgs
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2
                 )
 
+                anomalies_in_frame.append({
+                    'Confidence': conf_score,
+                    'Position': {'x': x, 'y': y, 'width': w, 'height': h}
+                })
+
         # Detect objects in the current frame
         results = model(img, imgsz=imgsz)
         for result in results:
@@ -115,7 +156,6 @@ def anomaly_detect(source=0, save_dir='output/', weights='yolov8s-oiv7.pt', imgs
 
                 object_appearances[obj_id][-1]['Disappear'] = current_time
 
-        anomaly_results = []
         for obj_id, appearances in object_appearances.items():
             obj_name = names[obj_id]
             for idx, times in enumerate(appearances):
@@ -124,7 +164,8 @@ def anomaly_detect(source=0, save_dir='output/', weights='yolov8s-oiv7.pt', imgs
                     'Appear': f"{times['Appear']:.2f}s" if times['Appear'] is not None else "Not detected",
                     'Disappear': f"{times['Disappear']:.2f}s" if times['Disappear'] is not None else "Not detected",
                     'Status': 'Abnormal',
-                    'Appearance': f'Appearance {idx + 1}'
+                    'Appearance': f'Appearance {idx + 1}',
+                    'Frame Anomalies': anomalies_in_frame
                 })
 
         # Draw bbox detections
@@ -146,33 +187,29 @@ def anomaly_detect(source=0, save_dir='output/', weights='yolov8s-oiv7.pt', imgs
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2
                 )
 
-        img_resized = cv2.resize(img, (new_width, new_height))
-        cv2.imshow('Anomaly Detection Stream', img_resized)
+        img_resized = cv2.resize(img, (width, height))
         video_writer.write(img_resized)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
 
     dataset.release()
     video_writer.release()
-    cv2.destroyAllWindows()
 
     json_output_path = os.path.join(save_dir, 'anomaly_results.json')
     with open(json_output_path, 'w') as json_file:
         json.dump(anomaly_results, json_file, indent=4)
 
     end_time = time.time()
-    print(f"\nAnomaly Detection Results: {anomaly_results}")
+    print(f"\nAnomaly Detection Results for video: {len(anomaly_results)} anomalies detected")
     print(f"Results saved to: {json_output_path}")
-    print(f"Total processing time: {end_time - start_time:.2f} seconds")
+    print(f"Processing time: {end_time - start_time:.2f} seconds")
 
     return anomaly_results
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--source', type=str, default=0, help='Video file path or camera index (default: 0 for camera)')
+    parser.add_argument('--source_dir', type=str, required=True, help='Directory containing input videos')
+    parser.add_argument('--output_dir', type=str, default='output/', help='Directory to save output videos and results')
     args = parser.parse_args()
 
     with torch.no_grad():
-        anomaly_detect(source=args.source)
+        anomaly_detect(source_dir=args.source_dir, output_dir=args.output_dir)
