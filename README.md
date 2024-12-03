@@ -62,7 +62,7 @@ This code uses the GPU; if you don't have a GPU, you can use the CPU instead.If 
 
 run code:
   python3 name file.py --source_folder name folder (have videos)
-  ex: ython3 phase1.py --source khovideo/19.mp4 
+  ex: python3 phase1.py --source khovideo/19.mp4 
   
 
 
