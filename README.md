@@ -14,9 +14,9 @@ Weights: Path to the YOLO model weights file (e.g., yolov8s-oiv7.pt).
 ## Usage
 To run the anomaly detection script with websites detect
 ```python
-python app.py 
+python .\anomaly.py --source_dir sample/
 ```
-Upload your video and start the processing.
+The source_dir refers to a folder containing all the video files. When you start the script, it will automatically process all the videos in the main folder. After processing, each video will have a corresponding output video and a JSON output file.
 
 ## Features
 
