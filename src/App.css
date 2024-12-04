@@ -1,0 +1,380 @@
+/* Cấu hình chung cho toàn bộ ứng dụng */
+.app {
+
+  color: #06100f; /* Màu chữ sáng cho toàn bộ ứng dụng */
+  font-family: Arial, sans-serif; /* Font chữ mặc định */
+  text-align: center; /* Canh giữa nội dung chính */
+  min-height: 100vh; /* Đảm bảo ứng dụng có chiều cao tối thiểu 100% */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px; /* Thêm padding để tạo không gian */
+}
+
+/* Thêm nền cho chữ */
+.app h3, .app p {
+  background-color: #ffff; /* Nền trắng nhẹ cho chữ */
+  padding: 10px; /* Padding xung quanh chữ */
+  border-radius: 8px; /* Bo góc cho nền chữ */
+  color:#000; /* Màu chữ tối */
+  margin: 10px 0; /* Khoảng cách cho các phần tử */
+}
+
+/* Cấu hình cho phần header */
+.header {
+  background-color: #ffff; /* Màu nền header nhẹ */
+  display: flex; /* Dùng Flexbox để căn chỉnh nội dung */
+  justify-content: space-between; /* Căn đều các phần tử trong header */
+  align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+  padding: 10px 20px; /* Padding cho header */
+  width: 100%;
+}
+
+/* Cấu hình cho logo */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 15vw; /* Chiều rộng linh động */
+  height: auto; /* Chiều cao tự động */
+  max-height: 120px; /* Chiều cao tối đa */
+  border-radius: 8px; /* Bo góc cho logo */
+  overflow: hidden; /* Ẩn phần ảnh ngoài vùng bo góc */
+}
+
+/* Cấu hình cho ảnh trong logo */
+.logo img {
+  max-width: 100%; /* Chiếm tối đa chiều rộng của vùng chứa */
+  max-height: 100%; /* Chiếm tối đa chiều cao của vùng chứa */
+  object-fit: contain; /* Giữ tỷ lệ ảnh không bị méo */
+  border-radius: 8px; /* Bo góc cho ảnh */
+}
+
+/* Cấu hình cho các nút điều hướng trong menu */
+.nav button {
+  background: none; /* Không có nền cho nút */
+  border: none; /* Không có viền cho nút */
+  color: #000; /* Màu chữ nút */
+  padding: 10px 20px; /* Padding cho nút */
+  cursor: pointer; /* Con trỏ chuột dạng pointer khi hover */
+  font-size: 25px; /* Kích thước chữ nút */
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* Cấu hình khi nút được chọn (active) */
+.nav button.active {
+  background-color: #ffd728; /* Màu nền khi nút được chọn */
+  border-radius: 8px; /* Bo tròn các góc của nút */
+}
+
+/* Cấu hình cho phần nội dung chính của ứng dụng */
+.main-content {
+  padding: 30px; /* Padding cho nội dung chính */
+  background-color: #FFFF; /* Màu nền nhẹ cho nội dung chính */
+  width: 100%;
+  max-width: 1200px; /* Đảm bảo nội dung không quá rộng */
+  margin-top: 20px;
+  box-sizing: border-box;
+}
+
+/* Cấu hình tiêu đề cấp 3 (h3) trong các phần của ứng dụng */
+h3 {
+  margin: 10px 0; /* Khoảng cách trên và dưới tiêu đề */
+  color: #000; /* Màu chữ tối */
+  font-size: 20px;
+}
+/* Cấu hình cho đoạn văn (p) */
+p {
+  color:#000; /* Màu chữ cho đoạn văn */
+  font-size: 16px;
+}
+
+/* Phần menu điều hướng */
+.nav {
+  display: flex; /* Dùng Flexbox để xếp các nút theo chiều ngang */
+  gap: 10px; /* Khoảng cách giữa các nút */
+  justify-content: center; /* Căn giữa các nút trong container */
+}
+
+/* Cấu hình cho thư viện video */
+.video-library {
+  padding: 30px; /* Padding cho phần video */
+  background-color: #ffffff; /* Màu nền đỏ */
+  border-radius: 8px; /* Bo góc cho thư viện video */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Bóng đổ */
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap; /* Video sẽ xuống dòng nếu không đủ chỗ */
+  justify-content: center; /* Căn giữa các phần tử con */
+  gap: 20px; /* Khoảng cách giữa các video */
+  width: 100%; /* Chiếm toàn bộ chiều rộng */
+  box-sizing: border-box; /* Đảm bảo padding và border không tính vào kích thước */
+  overflow-x: hidden; /* Không hiển thị cuộn ngang */
+}
+
+.video-library .video-item {
+  background-color: white;
+  padding: 20px;
+  width: 220px; /* Chiều rộng mỗi video */
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Bóng đổ cho video */
+}
+
+.video-library h1 {
+  text-align: center; /* Căn giữa tiêu đề */
+  color: #fff;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.video-library h2 {
+  font-size: 40px;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+/* Cấu hình các điều khiển tìm kiếm và lọc video */
+.filter-controls {
+  display: flex;
+  gap: 10px; /* Khoảng cách giữa các ô nhập */
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Bo góc cho các khung nhập liệu */
+.filter-controls input {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #9d9ea8c2;
+  border: 1px solid #e2d7cf;
+  border-radius: 8px; /* Bo góc cho các khung nhập liệu */
+}
+
+/* Cấu hình cho phần hiển thị video theo dạng lưới */
+.video-grid {
+  display: flex;
+  flex-wrap: nowrap; /* Các video sẽ hiển thị trên cùng một dòng */
+  gap: 20px; /* Khoảng cách giữa các video */
+}
+
+.video-card {
+  flex-shrink: 0; /* Đảm bảo video không bị thu nhỏ */
+  width: 320px; /* Chiều rộng mỗi video */
+  text-align: center;
+  background-color: #ffffff; /* Nền trắng cho mỗi video */
+  border-radius: 8px; /* Bo góc */
+  box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.5); /* Thêm bóng đổ cho mỗi video */
+  padding: 10px;
+}
+
+.video-thumbnail {
+  margin-bottom: 10px;
+}
+
+.video-thumbnail video {
+  width: 50%; /* Đảm bảo video thu nhỏ vừa với container */
+  border-radius: 5px;
+
+}
+
+.video-card h3 {
+  font-size: 18px;
+  color: #000;
+  background-color: #fff;
+  margin: 10px 0;
+}
+
+.video-card p {
+  font-size: 14px;
+  color: #141a46;
+  background-color: #f6eadd;
+  margin: 5px 0;
+}
+
+/* Cấu hình khi không có video phù hợp */
+.video-library p {
+  font-size: 18px;
+  color: #141a46;
+  background-color: #fff
+}
+.video-library {
+  text-align: center;
+}
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin: 20px auto;
+}
+.video-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.pagination {
+  margin: 20px 0;
+}
+.pagination button {
+  margin: 0 10px;
+  padding: 5px 10px;
+}
+.pagination span {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+
+/* Hiển thị logo trên trang chủ */
+.logo-container {
+  margin-top: 50px; /* Khoảng cách trên */
+  text-align: center; /* Canh giữa logo */
+}
+
+.logo-container img {
+  max-width: 300px; /* Kích thước tối đa của logo */
+  width: 100%; /* Đảm bảo logo chiếm hết chiều rộng của container nếu cần */
+  height: auto; /* Tự động điều chỉnh chiều cao */
+  border-radius: 10px; /* Bo góc cho logo */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Thêm bóng đổ cho logo */
+}
+
+/* Cấu hình cho banner */
+/* Banner CSS */
+/* Cấu hình cho banner */
+.banner {
+  width: 100%;
+height: 300px; /* Giới hạn chiều cao của banner */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0; /* Khoảng cách giữa banner và các phần khác */
+  overflow: hidden; /* Đảm bảo nội dung không vượt ra ngoài */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ */
+}
+
+.banner img {
+  width: 100%; /* Chiếm toàn bộ chiều rộng container */
+  height: 100%; /* Đảm bảo hình ảnh chiếm toàn bộ chiều cao của banner */
+  object-fit: cover; /* Cắt ảnh để vừa với container */
+  border-radius: 8px;
+}
+
+/*buton */
+.video-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.video-buttons button {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.video-buttons button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.video-buttons button:active {
+  background-color: #003d80;
+}
+
+.video-buttons button:focus {
+  outline: 2px solid #80bdff;
+  outline-offset: 2px;
+}
+.video-player {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 20px;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #000;
+}
+.video-player p{
+  font-size: 20px;
+  font-family: 'Times New Roman', Times, serif;
+}
+.video-player button{
+  padding: 10px 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-family: 'Times New Roman', Times, serif;
+}
+/*Dashboard*/
+.dashboard {
+  padding: 20px;
+}
+h2 {
+  font-size: 45px;
+  font-family: 'Times New Roman', Times, serif;
+
+}
+
+.watched-videos {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.video-list {
+  display: flex;
+  flex-wrap: wrap; /* Đảm bảo các video sẽ tự động xuống hàng khi thiếu không gian */
+  gap: 20px;
+}
+
+.video-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 200px;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.video-thumbnail video {
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.video-title {
+  margin: 10px 0 5px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.video-date {
+  font-size: 14px;
+  color: #555;
+}
+
+p {
+  margin: 0;
+}
+
+p, h3 {
+  margin: 0;
+  padding: 0;
+}
