@@ -3,64 +3,183 @@ import json
 import os
 import time
 from collections import defaultdict
+import numpy as np
 
 import cv2
 import torch
 from ultralytics import YOLO
+import logging
 
+def setup_logging(log_dir):
+    """Set up logging configuration"""
+    os.makedirs(log_dir, exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s: %(message)s',
+        handlers=[
+            logging.FileHandler(os.path.join(log_dir, 'anomaly_detection.log')),
+            logging.StreamHandler()
+        ]
+    )
+    return logging.getLogger(__name__)
 
-def anomaly_detect(source_dir, output_dir='output/'):
+def calculate_area_confidence(contour, img):
+    """
+    Calculate confidence based on contour characteristics
+    
+    Args:
+        contour: OpenCV contour
+        img: Original image
+    
+    Returns:
+        float: Confidence score
+    """
+    img_area = img.shape[0] * img.shape[1]
+    contour_area = cv2.contourArea(contour)
+    
+    # Area-based confidence
+    area_ratio = contour_area / img_area
+    
+    # Compactness calculation
+    hull = cv2.convexHull(contour)
+    hull_area = cv2.contourArea(hull)
+    compactness = 1 - (contour_area / hull_area if hull_area > 0 else 1)
+    
+    # Weighted confidence score
+    confidence = 0.6 * area_ratio + 0.4 * compactness
+    return min(max(confidence, 0), 1)
+
+def non_max_suppression(boxes, confidences, iou_threshold=0.5):
+    """
+    Apply Non-Maximum Suppression to reduce overlapping detections
+    
+    Args:
+        boxes: List of bounding boxes
+        confidences: Corresponding confidence scores
+        iou_threshold: Intersection over Union threshold
+    
+    Returns:
+        Filtered boxes and confidences
+    """
+    boxes = np.array(boxes)
+    confidences = np.array(confidences)
+    
+    indices = np.argsort(confidences)[::-1]
+    keep = []
+
+    while indices.size > 0:
+        current = indices[0]
+        keep.append(current)
+        
+        ious = calculate_iou(boxes[current], boxes[indices[1:]])
+        mask = ious <= iou_threshold
+        indices = indices[1:][mask]
+    
+    return boxes[keep], confidences[keep]
+
+def calculate_iou(box, boxes):
+    """
+    Calculate Intersection over Union between boxes
+    
+    Args:
+        box: Reference box
+        boxes: Array of comparison boxes
+    
+    Returns:
+        IoU values
+    """
+    x1 = np.maximum(box[0], boxes[:, 0])
+    y1 = np.maximum(box[1], boxes[:, 1])
+    x2 = np.minimum(box[0] + box[2], boxes[:, 0] + boxes[:, 2])
+    y2 = np.minimum(box[1] + box[3], boxes[:, 1] + boxes[:, 3])
+    
+    intersection = np.maximum(0, x2 - x1) * np.maximum(0, y2 - y1)
+    union = box[2] * box[3] + boxes[:, 2] * boxes[:, 3] - intersection
+    
+    return intersection / union
+
+def anomaly_detect(source_dir, output_dir='output/', config=None):
     """
     Process all videos in a source directory and generate anomaly detection results
     
     Args:
         source_dir (str): Directory containing input videos
         output_dir (str): Directory to save output videos and results
+        config (dict): Configuration parameters
     """
-    start_time = time.time()
+    logger = setup_logging(output_dir)
+    
+    config = config or {
+        'weights': 'yolov8s-oiv7.pt',
+        'imgsz': 640,
+        'confidence_threshold': 0.5,
+        'iou_threshold': 0.5
+    }
 
-    # Create output directory if it doesn't exist
+    start_time = time.time()
     os.makedirs(output_dir, exist_ok=True)
 
-    # Get list of video files in the source directory
     video_files = [
         f for f in os.listdir(source_dir) 
         if f.lower().endswith(('.mp4', '.avi', '.mov', '.mkv'))
     ]
 
-    # Process each video sequentially
+    logger.info(f"Found {len(video_files)} videos to process")
+
     for video_filename in video_files:
         video_path = os.path.join(source_dir, video_filename)
-        print(f"\nProcessing video: {video_filename}")
+        logger.info(f"Processing video: {video_filename}")
 
-        # Prepare output paths
         video_output_dir = os.path.join(output_dir, os.path.splitext(video_filename)[0])
         os.makedirs(video_output_dir, exist_ok=True)
 
-        # Call internal processing function
-        _process_single_video(
-            source=video_path, 
-            save_dir=video_output_dir
-        )
+        try:
+            _process_single_video(
+                source=video_path, 
+                save_dir=video_output_dir,
+                config=config
+            )
+        except Exception as e:
+            logger.error(f"Error processing {video_filename}: {e}")
 
     end_time = time.time()
-    print(f"\nTotal processing time for all videos: {end_time - start_time:.2f} seconds")
+    logger.info(f"Total processing time: {end_time - start_time:.2f} seconds")
 
-
-def _process_single_video(source=0, save_dir='output/', weights='yolov8s-oiv7.pt', imgsz=640):
+def _process_single_video(source=0, save_dir='output/', config=None):
+    """
+    Process a single video for anomaly detection
+    
+    Args:
+        source (str/int): Video source path or camera index
+        save_dir (str): Directory to save results
+        config (dict): Configuration parameters
+    """
+    config = config or {}
+    logger = logging.getLogger(__name__)
     start_time = time.time()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = YOLO(weights)
-    names = model.names
+    
+    # Load configuration with defaults
+    weights = config.get('weights', 'yolov8s-oiv7.pt')
+    imgsz = config.get('imgsz', 640)
+    confidence_threshold = config.get('confidence_threshold', 0.5)
+    iou_threshold = config.get('iou_threshold', 0.5)
 
+    try:
+        model = YOLO(weights)
+        names = model.names
+    except Exception as e:
+        logger.error(f"Failed to load model: {e}")
+        return None
+    
     object_appearances = defaultdict(list)
     background_objects = {}
 
     # Camera handling
     if isinstance(source, str) and source.isdigit():
         source = int(source)
-
+    
     # Default to camera if no video path is provided
     fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=False, varThreshold=50)
 
@@ -94,7 +213,6 @@ def _process_single_video(source=0, save_dir='output/', weights='yolov8s-oiv7.pt
                 background_objects[obj_name] = True
 
     frame_count = 0
-    anomaly_results = []
     while True:
         ret, img = dataset.read()
         if not ret:
@@ -115,12 +233,18 @@ def _process_single_video(source=0, save_dir='output/', weights='yolov8s-oiv7.pt
         fgmask = fgbg.apply(img)
         bin_img = cv2.threshold(fgmask, 200, 255, cv2.THRESH_BINARY)[1]
         contour_list, _ = cv2.findContours(bin_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+        
         anomalies_in_frame = []
-        for contour in contour_list:
-            if cv2.contourArea(contour) > 17000:
-                x, y, w, h = cv2.boundingRect(contour)
+        # Dynamic contour area threshold calculation
+        img_area = img.shape[0] * img.shape[1]
+        min_contour_threshold = 0.01 * img_area  # 1% of image area
+        max_contour_threshold = 0.5 * img_area   # 50% of image area
 
+        for contour in contour_list:
+            contour_area = cv2.contourArea(contour)
+            # Use dynamic thresholding instead of fixed value
+            if min_contour_threshold < contour_area < max_contour_threshold:
+                x, y, w, h = cv2.boundingRect(contour)
                 # Estimate area and compactness confidence
                 area_confidence = cv2.contourArea(contour) / (img.shape[0] * img.shape[1])
                 hull = cv2.convexHull(contour)
@@ -155,7 +279,8 @@ def _process_single_video(source=0, save_dir='output/', weights='yolov8s-oiv7.pt
                     object_appearances[obj_id].append({'Appear': current_time, 'Disappear': None})
 
                 object_appearances[obj_id][-1]['Disappear'] = current_time
-
+        
+        anomaly_results = []
         for obj_id, appearances in object_appearances.items():
             obj_name = names[obj_id]
             for idx, times in enumerate(appearances):
@@ -204,12 +329,21 @@ def _process_single_video(source=0, save_dir='output/', weights='yolov8s-oiv7.pt
 
     return anomaly_results
 
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+def main():
+    """Main execution entry point"""
+    parser = argparse.ArgumentParser(description='Anomaly Detection Script')
     parser.add_argument('--source_dir', type=str, required=True, help='Directory containing input videos')
     parser.add_argument('--output_dir', type=str, default='output/', help='Directory to save output videos and results')
     args = parser.parse_args()
 
-    with torch.no_grad():
-        anomaly_detect(source_dir=args.source_dir, output_dir=args.output_dir)
+    try:
+        with torch.no_grad():
+            anomaly_detect(
+                source_dir=args.source_dir, 
+                output_dir=args.output_dir
+            )
+    except Exception as e:
+        logging.error(f"Anomaly detection failed: {e}")
+
+if __name__ == '__main__':
+    main()
